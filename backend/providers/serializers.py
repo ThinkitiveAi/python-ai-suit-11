@@ -73,3 +73,41 @@ class ProviderRegistrationSerializer(serializers.ModelSerializer):
             updated_at=timezone.now()
         )
         return provider
+
+
+class ProviderLoginSerializer(serializers.Serializer):
+    """Serializer for provider login"""
+    email = serializers.EmailField(
+        help_text="Provider's email address",
+        required=True
+    )
+    password = serializers.CharField(
+        write_only=True,
+        help_text="Provider's password",
+        required=True,
+        style={'input_type': 'password'}
+    )
+
+    class Meta:
+        fields = ['email', 'password']
+
+
+class ProviderRegistrationResponseSerializer(serializers.Serializer):
+    """Response serializer for provider registration"""
+    success = serializers.BooleanField()
+    message = serializers.CharField()
+    data = serializers.DictField(child=serializers.CharField())
+
+
+class ProviderLoginResponseSerializer(serializers.Serializer):
+    """Response serializer for provider login"""
+    success = serializers.BooleanField()
+    message = serializers.CharField()
+    data = serializers.DictField(child=serializers.CharField())
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    """Error response serializer"""
+    success = serializers.BooleanField(default=False)
+    message = serializers.CharField()
+    errors = serializers.DictField(child=serializers.ListField(child=serializers.CharField()))

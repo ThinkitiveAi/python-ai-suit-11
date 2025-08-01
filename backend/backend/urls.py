@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -30,12 +32,22 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
-from providers.patient_views import PatientRegisterView
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/patient/register', PatientRegisterView.as_view(), name='patient-register'),
+    # Provider endpoints
     path('api/v1/provider/', include('providers.urls')),
+    # Patient endpoints  
+    path('api/v1/patient/', include('providers.patient_urls')),
+    # Comprehensive Patient Management endpoints
+    path('api/v1/management/', include('providers.patient_management_urls')),
+    # Token management endpoints
+    path('api/v1/token/', include('providers.token_urls')),
+    # API Documentation
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui-root'),
 ]
+
+# Serve static files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
