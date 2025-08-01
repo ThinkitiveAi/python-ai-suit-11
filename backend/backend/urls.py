@@ -38,8 +38,7 @@ urlpatterns = [
     path('api/v1/provider/', include('providers.urls')),
     # Patient endpoints  
     path('api/v1/patient/', include('providers.patient_urls')),
-    # Comprehensive Patient Management endpoints
-    path('api/v1/management/', include('providers.patient_management_urls')),
+    # Comprehensive Patient Management endpoints (handled via patient_urls)
     # Token management endpoints
     path('api/v1/token/', include('providers.token_urls')),
     # API Documentation
