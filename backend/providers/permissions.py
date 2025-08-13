@@ -34,6 +34,20 @@ class IsProvider(BasePermission):
             
         return isinstance(request.user, Provider) and request.user.is_active
 
+class IsProviderAuthenticated(BasePermission):
+    """
+    Permission class to check if the authenticated user is a provider (for availability management)
+    """
+    
+    def has_permission(self, request, view):
+        """
+        Check if the user is authenticated and is a provider
+        """
+        if not request.user or not hasattr(request.user, 'id'):
+            return False
+            
+        return isinstance(request.user, Provider) and request.user.is_active
+
 class IsVerifiedProvider(BasePermission):
     """
     Permission class to check if the authenticated user is a verified provider

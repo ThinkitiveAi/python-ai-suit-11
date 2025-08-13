@@ -2,6 +2,8 @@ from django.contrib import admin
 from .models import Provider, RefreshToken
 from .patient_models import Patient, VerificationToken
 from .patient_session_models import PatientSession
+from .appointment_models import Appointment, AppointmentHistory
+from .availability_models import Availability, AppointmentSlot
 
 
 @admin.register(Provider)
@@ -104,3 +106,87 @@ class PatientSessionAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ('appointment_number', 'patient', 'provider', 'appointment_date', 'appointment_time', 'appointment_mode', 'status', 'payment_status', 'created_at')
+    list_filter = ('appointment_mode', 'appointment_type', 'status', 'payment_status', 'appointment_date', 'created_at')
+    search_fields = ('appointment_number', 'patient__first_name', 'patient__last_name', 'provider__first_name', 'provider__last_name', 'reason_for_visit')
+    readonly_fields = ('id', 'appointment_number', 'created_at', 'updated_at')
+    ordering = ('-appointment_date', '-appointment_time')
+    
+    fieldsets = (
+        ('Appointment Details', {
+            'fields': ('appointment_number', 'patient', 'provider', 'appointment_slot')
+        }),
+        ('Scheduling', {
+            'fields': ('appointment_date', 'appointment_time', 'duration_minutes', 'timezone', 'appointment_mode', 'appointment_type')
+        }),
+        ('Status & Payment', {
+            'fields': ('status', 'payment_status', 'estimated_amount', 'actual_amount', 'currency')
+        }),
+        ('Medical Information', {
+            'fields': ('reason_for_visit', 'symptoms', 'medical_history_notes')
+        }),
+        ('Additional Information', {
+            'fields': ('special_instructions', 'emergency_contact_name', 'emergency_contact_phone', 'location_details', 'video_call_link')
+        }),
+        ('Cancellation', {
+            'fields': ('cancelled_at', 'cancellation_reason', 'cancelled_by'),
+            'classes': ('collapse',)
+        }),
+        ('System Information', {
+            'fields': ('id', 'created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        })
+    )
+
+
+@admin.register(AppointmentHistory)
+class AppointmentHistoryAdmin(admin.ModelAdmin):
+    list_display = ('appointment', 'action', 'performed_by', 'performed_at')
+    list_filter = ('action', 'performed_at')
+    search_fields = ('appointment__appointment_number', 'performed_by', 'description')
+    readonly_fields = ('id', 'performed_at')
+    ordering = ('-performed_at',)
+
+
+@admin.register(Availability)
+class AvailabilityAdmin(admin.ModelAdmin):
+    list_display = ('provider', 'date', 'start_time', 'end_time', 'appointment_type', 'status', 'is_recurring')
+    list_filter = ('status', 'appointment_type', 'is_recurring', 'recurrence_pattern', 'date', 'created_at')
+    search_fields = ('provider__first_name', 'provider__last_name', 'notes')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    ordering = ('-date', 'start_time')
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('provider', 'date', 'start_time', 'end_time', 'timezone')
+        }),
+        ('Slot Configuration', {
+            'fields': ('slot_duration', 'break_duration', 'max_appointments_per_slot', 'appointment_type')
+        }),
+        ('Recurrence', {
+            'fields': ('is_recurring', 'recurrence_pattern', 'recurrence_end_date')
+        }),
+        ('Status & Settings', {
+            'fields': ('status', 'location', 'pricing', 'special_requirements')
+        }),
+        ('Additional Information', {
+            'fields': ('notes',)
+        }),
+        ('System Information', {
+            'fields': ('id', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+
+
+@admin.register(AppointmentSlot)
+class AppointmentSlotAdmin(admin.ModelAdmin):
+    list_display = ('provider', 'slot_start_time', 'slot_end_time', 'appointment_type', 'status', 'patient_id')
+    list_filter = ('status', 'appointment_type', 'slot_start_time', 'created_at')
+    search_fields = ('provider__first_name', 'provider__last_name', 'booking_reference')
+    readonly_fields = ('id', 'booking_reference', 'created_at', 'updated_at')
+    ordering = ('-slot_start_time',)

@@ -28,8 +28,8 @@ def generate_patient_tokens(patient):
         'email': patient.email,
         'first_name': patient.first_name,
         'last_name': patient.last_name,
-        'iat': now,
-        'exp': now + JWT_ACCESS_TOKEN_LIFETIME,
+        'iat': int(now.timestamp()),
+        'exp': int((now + JWT_ACCESS_TOKEN_LIFETIME).timestamp()),
         'token_type': 'access'
     }
     
@@ -38,8 +38,8 @@ def generate_patient_tokens(patient):
         'user_id': str(patient.id),
         'user_type': 'patient',
         'email': patient.email,
-        'iat': now,
-        'exp': now + JWT_REFRESH_TOKEN_LIFETIME,
+        'iat': int(now.timestamp()),
+        'exp': int((now + JWT_REFRESH_TOKEN_LIFETIME).timestamp()),
         'token_type': 'refresh'
     }
     
@@ -70,8 +70,8 @@ def generate_provider_tokens(provider):
         'last_name': provider.last_name,
         'specialization': provider.specialization,
         'verification_status': provider.verification_status,
-        'iat': now,
-        'exp': now + JWT_ACCESS_TOKEN_LIFETIME,
+        'iat': int(now.timestamp()),
+        'exp': int((now + JWT_ACCESS_TOKEN_LIFETIME).timestamp()),
         'token_type': 'access'
     }
     
@@ -80,8 +80,8 @@ def generate_provider_tokens(provider):
         'user_id': str(provider.id),
         'user_type': 'provider',
         'email': provider.email,
-        'iat': now,
-        'exp': now + JWT_REFRESH_TOKEN_LIFETIME,
+        'iat': int(now.timestamp()),
+        'exp': int((now + JWT_REFRESH_TOKEN_LIFETIME).timestamp()),
         'token_type': 'refresh'
     }
     

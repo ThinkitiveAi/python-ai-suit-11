@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from providers.availability_views import AvailabilitySearchView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -41,6 +42,12 @@ urlpatterns = [
     # Comprehensive Patient Management endpoints (handled via patient_urls)
     # Token management endpoints
     path('api/v1/token/', include('providers.token_urls')),
+    # Public availability search endpoint
+    path('api/v1/availability/search', AvailabilitySearchView.as_view(), name='availability-search'),
+    # Dropdown endpoints
+    path('api/v1/dropdown/', include('providers.dropdown_urls')),
+    # Debug endpoints for slot troubleshooting
+    path('api/v1/slot/', include('providers.slot_debug_urls')),
     # API Documentation
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
