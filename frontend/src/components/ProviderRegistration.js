@@ -1,18 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Box, Card, CardContent, Typography, TextField, Button, Checkbox, FormControlLabel,
-  InputAdornment, IconButton, MenuItem, Avatar, CircularProgress, Alert, Grid, Link, Divider
-} from '@mui/material';
-import { Lock, Person, Email, Phone, LocalHospital, PhotoCamera, Business, LocationOn, Work, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, makeApiRequest } from '../config/api';
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  IconButton,
+  MenuItem,
+  Avatar,
+  CircularProgress,
+  Alert,
+  Grid,
+  Link,
+  Divider,
+} from "@mui/material";
+import {
+  Lock,
+  Person,
+  Email,
+  Phone,
+  LocalHospital,
+  PhotoCamera,
+  Business,
+  LocationOn,
+  Work,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { API_ENDPOINTS, makeApiRequest } from "../config/api";
 
 const SPECIALIZATIONS = [
-  'Cardiology', 'Dermatology', 'Pediatrics', 'General Medicine', 'Orthopedics',
-  'Neurology', 'Psychiatry', 'Radiology', 'Surgery', 'Other'
+  "Cardiology",
+  "Dermatology",
+  "Pediatrics",
+  "General Medicine",
+  "Orthopedics",
+  "Neurology",
+  "Psychiatry",
+  "Radiology",
+  "Surgery",
+  "Other",
 ];
 const PRACTICE_TYPES = [
-  'Private Practice', 'Hospital', 'Clinic', 'Group Practice', 'Other'
+  "Private Practice",
+  "Hospital",
+  "Clinic",
+  "Group Practice",
+  "Other",
 ];
 
 function validateEmail(email) {
@@ -28,65 +67,82 @@ function validatePassword(password) {
 
 export default function ProviderRegistration() {
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '', photo: null,
-    license: '', specialization: '', experience: '', degree: '',
-    clinic: '', address: '', practiceType: '',
-    password: '', confirmPassword: '', terms: false
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    photo: null,
+    license: "",
+    specialization: "",
+    experience: "",
+    degree: "",
+    clinic: "",
+    address: "",
+    practiceType: "",
+    password: "",
+    confirmPassword: "",
+    terms: false,
   });
   const [photoPreview, setPhotoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   // Validation
   const validate = () => {
     const newErrors = {};
-    if (!form.firstName) newErrors.firstName = 'First name required';
-    if (!form.lastName) newErrors.lastName = 'Last name required';
-    if (!form.email || !validateEmail(form.email)) newErrors.email = 'Valid email required';
-    if (!form.phone || !validatePhone(form.phone)) newErrors.phone = 'Valid phone required';
-    if (!form.license) newErrors.license = 'Medical license required';
-    if (!form.specialization) newErrors.specialization = 'Specialization required';
-    if (!form.experience || isNaN(form.experience) || form.experience < 0) newErrors.experience = 'Valid years required';
-    if (!form.degree) newErrors.degree = 'Degree required';
-    if (!form.clinic) newErrors.clinic = 'Clinic/Hospital name required';
-    if (!form.street) newErrors.street = 'Street address required';
-    if (!form.city) newErrors.city = 'City required';
-    if (!form.state) newErrors.state = 'State required';
-    if (!form.zip) newErrors.zip = 'ZIP code required';
-    if (!form.practiceType) newErrors.practiceType = 'Practice type required';
-    if (!form.password || !validatePassword(form.password)) newErrors.password = 'Min 8 chars, 1 number, 1 special char';
-    if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords must match';
-    if (!form.terms) newErrors.terms = 'You must accept the terms';
+    if (!form.firstName) newErrors.firstName = "First name required";
+    if (!form.lastName) newErrors.lastName = "Last name required";
+    if (!form.email || !validateEmail(form.email))
+      newErrors.email = "Valid email required";
+    if (!form.phone || !validatePhone(form.phone))
+      newErrors.phone = "Valid phone required";
+    if (!form.license) newErrors.license = "Medical license required";
+    if (!form.specialization)
+      newErrors.specialization = "Specialization required";
+    if (!form.experience || isNaN(form.experience) || form.experience < 0)
+      newErrors.experience = "Valid years required";
+    if (!form.degree) newErrors.degree = "Degree required";
+    if (!form.clinic) newErrors.clinic = "Clinic/Hospital name required";
+    if (!form.street) newErrors.street = "Street address required";
+    if (!form.city) newErrors.city = "City required";
+    if (!form.state) newErrors.state = "State required";
+    if (!form.zip) newErrors.zip = "ZIP code required";
+    if (!form.practiceType) newErrors.practiceType = "Practice type required";
+    if (!form.password || !validatePassword(form.password))
+      newErrors.password = "Min 8 chars, 1 number, 1 special char";
+    if (form.password !== form.confirmPassword)
+      newErrors.confirmPassword = "Passwords must match";
+    if (!form.terms) newErrors.terms = "You must accept the terms";
     return newErrors;
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'checkbox') {
-      setForm(f => ({ ...f, [name]: checked }));
-    } else if (type === 'file') {
+    if (type === "checkbox") {
+      setForm((f) => ({ ...f, [name]: checked }));
+    } else if (type === "file") {
       const file = files[0];
-      setForm(f => ({ ...f, photo: file }));
+      setForm((f) => ({ ...f, photo: file }));
       if (file) {
         const reader = new FileReader();
-        reader.onload = e => setPhotoPreview(e.target.result);
+        reader.onload = (e) => setPhotoPreview(e.target.result);
         reader.readAsDataURL(file);
       } else {
         setPhotoPreview(null);
       }
     } else {
-      setForm(f => ({ ...f, [name]: value }));
+      setForm((f) => ({ ...f, [name]: value }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
     const newErrors = validate();
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -106,34 +162,69 @@ export default function ProviderRegistration() {
           street: form.street,
           city: form.city,
           state: form.state,
-          zip: form.zip
-        }
+          zip: form.zip,
+        },
       };
-      const result = await makeApiRequest(API_ENDPOINTS.PROVIDER_REGISTER, payload, 'POST');
-      
+      const result = await makeApiRequest(
+        API_ENDPOINTS.PROVIDER_REGISTER,
+        payload,
+        "POST"
+      );
+
       setLoading(false);
       if (result.success) {
         setSuccess(true);
       } else {
-        setFormError(result.error || 'Registration failed. Please try again.');
+        setFormError(result.error || "Registration failed. Please try again.");
       }
     } catch (err) {
       setLoading(false);
-      setFormError('Network or server error. Please try again.');
+      setFormError("Network or server error. Please try again.");
     }
   };
 
   if (success) {
     return (
-      <Box sx={{ minHeight: '100vh', background: '#f4f8fb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Card sx={{ p: 4, minWidth: 340, maxWidth: 420, boxShadow: 3, borderRadius: 3 }}>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "#f4f8fb",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Card
+          sx={{
+            p: 4,
+            minWidth: 340,
+            maxWidth: 420,
+            boxShadow: 3,
+            borderRadius: 3,
+          }}
+        >
           <CardContent>
-            <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
+            <Typography
+              variant="h5"
+              color="primary"
+              fontWeight="bold"
+              align="center"
+              gutterBottom
+            >
               Registration Successful!
             </Typography>
             <Typography align="center" sx={{ mb: 2 }}>
-              Please check your email for verification and next steps.<br />
-              You may now <Link onClick={() => navigate('/')} sx={{ cursor: 'pointer', color: 'primary.main' }}>login</Link> or go to your dashboard.
+              Please check your email for verification and next steps.
+              <br />
+              You may now{" "}
+              <Link
+                onClick={() => navigate("/")}
+                sx={{ cursor: "pointer", color: "primary.main" }}
+              >
+                login
+              </Link>{" "}
+              or go to your dashboard.
             </Typography>
           </CardContent>
         </Card>
@@ -142,18 +233,38 @@ export default function ProviderRegistration() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', background: '#f4f8fb' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 4 }}>
-        <LocalHospital sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-        <Typography variant="h4" fontWeight="bold" color="primary.main" gutterBottom>
+    <Box sx={{ minHeight: "100vh", background: "#f4f8fb" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          pt: 4,
+        }}
+      >
+        <LocalHospital sx={{ fontSize: 48, color: "primary.main", mb: 1 }} />
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          color="primary.main"
+          gutterBottom
+        >
           Provider Registration
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
           Create your professional profile
         </Typography>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
-        <Card sx={{ minWidth: 340, maxWidth: 600, width: '100%', boxShadow: 3, borderRadius: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 4 }}>
+        <Card
+          sx={{
+            minWidth: 340,
+            maxWidth: 600,
+            width: "100%",
+            boxShadow: 3,
+            borderRadius: 3,
+          }}
+        >
           <CardContent>
             <form onSubmit={handleSubmit} autoComplete="on">
               {/* Personal Info */}
@@ -171,7 +282,13 @@ export default function ProviderRegistration() {
                     helperText={errors.firstName}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Person /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -184,7 +301,13 @@ export default function ProviderRegistration() {
                     helperText={errors.lastName}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Person /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -197,7 +320,13 @@ export default function ProviderRegistration() {
                     helperText={errors.email}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Email /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Email />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -210,17 +339,26 @@ export default function ProviderRegistration() {
                     helperText={errors.phone}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Phone /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Phone />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar src={photoPreview} sx={{ width: 48, height: 48, bgcolor: 'secondary.main' }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Avatar
+                      src={photoPreview}
+                      sx={{ width: 48, height: 48, bgcolor: "secondary.main" }}
+                    />
                     <Button
                       variant="outlined"
                       component="label"
                       startIcon={<PhotoCamera />}
-                      sx={{ textTransform: 'none' }}
+                      sx={{ textTransform: "none" }}
                     >
                       Upload Photo
                       <input
@@ -251,7 +389,13 @@ export default function ProviderRegistration() {
                     helperText={errors.license}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><LocalHospital /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocalHospital />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -266,8 +410,10 @@ export default function ProviderRegistration() {
                     fullWidth
                     required
                   >
-                    {SPECIALIZATIONS.map(opt => (
-                      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                    {SPECIALIZATIONS.map((opt) => (
+                      <MenuItem key={opt} value={opt}>
+                        {opt}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -282,7 +428,13 @@ export default function ProviderRegistration() {
                     helperText={errors.experience}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Work /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Work />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -314,7 +466,13 @@ export default function ProviderRegistration() {
                     helperText={errors.clinic}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Business /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Business />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={12}>
@@ -327,7 +485,13 @@ export default function ProviderRegistration() {
                     helperText={errors.street}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><LocationOn /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocationOn />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={4}>
@@ -378,8 +542,10 @@ export default function ProviderRegistration() {
                     fullWidth
                     required
                   >
-                    {PRACTICE_TYPES.map(opt => (
-                      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                    {PRACTICE_TYPES.map((opt) => (
+                      <MenuItem key={opt} value={opt}>
+                        {opt}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -394,20 +560,28 @@ export default function ProviderRegistration() {
                   <TextField
                     label="Password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
                     error={!!errors.password}
-                    helperText={errors.password || 'Min 8 chars, 1 number, 1 special char'}
+                    helperText={
+                      errors.password || "Min 8 chars, 1 number, 1 special char"
+                    }
                     fullWidth
                     required
                     InputProps={{
-                      startAdornment: <InputAdornment position="start"><Lock /></InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Lock />
+                        </InputAdornment>
+                      ),
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
-                            onClick={() => setShowPassword(s => !s)}
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowPassword((s) => !s)}
                             edge="end"
                             tabIndex={-1}
                           >
@@ -422,7 +596,7 @@ export default function ProviderRegistration() {
                   <TextField
                     label="Confirm Password"
                     name="confirmPassword"
-                    type={showConfirm ? 'text' : 'password'}
+                    type={showConfirm ? "text" : "password"}
                     value={form.confirmPassword}
                     onChange={handleChange}
                     error={!!errors.confirmPassword}
@@ -430,12 +604,18 @@ export default function ProviderRegistration() {
                     fullWidth
                     required
                     InputProps={{
-                      startAdornment: <InputAdornment position="start"><Lock /></InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Lock />
+                        </InputAdornment>
+                      ),
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                            onClick={() => setShowConfirm(s => !s)}
+                            aria-label={
+                              showConfirm ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowConfirm((s) => !s)}
                             edge="end"
                             tabIndex={-1}
                           >
@@ -449,8 +629,16 @@ export default function ProviderRegistration() {
               </Grid>
               {/* Password Strength Indicator */}
               <Box sx={{ mt: 1, mb: 2 }}>
-                <Typography variant="caption" color={validatePassword(form.password) ? 'success.main' : 'error.main'}>
-                  Password strength: {validatePassword(form.password) ? 'Strong' : 'Weak'}
+                <Typography
+                  variant="caption"
+                  color={
+                    validatePassword(form.password)
+                      ? "success.main"
+                      : "error.main"
+                  }
+                >
+                  Password strength:{" "}
+                  {validatePassword(form.password) ? "Strong" : "Weak"}
                 </Typography>
               </Box>
               <FormControlLabel
@@ -460,12 +648,23 @@ export default function ProviderRegistration() {
                     onChange={handleChange}
                     name="terms"
                     color="primary"
-                    inputProps={{ 'aria-label': 'Accept Terms and Conditions' }}
+                    inputProps={{ "aria-label": "Accept Terms and Conditions" }}
                   />
                 }
-                label={<span>I accept the <Link href="#" underline="hover">Terms & Conditions</Link></span>}
+                label={
+                  <span>
+                    I accept the{" "}
+                    <Link href="#" underline="hover">
+                      Terms & Conditions
+                    </Link>
+                  </span>
+                }
               />
-              {formError && <Alert severity="error" sx={{ my: 2 }}>{formError}</Alert>}
+              {formError && (
+                <Alert severity="error" sx={{ my: 2 }}>
+                  {formError}
+                </Alert>
+              )}
               <Button
                 type="submit"
                 fullWidth
@@ -473,15 +672,28 @@ export default function ProviderRegistration() {
                 color="primary"
                 size="large"
                 disabled={loading}
-                sx={{ mt: 2, mb: 1, height: 48, fontWeight: 'bold', fontSize: 16 }}
+                sx={{
+                  mt: 2,
+                  mb: 1,
+                  height: 48,
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
                 aria-label="Register"
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Register"
+                )}
               </Button>
-              <Box sx={{ textAlign: 'center', mt: 1 }}>
+              <Box sx={{ textAlign: "center", mt: 1 }}>
                 <Typography variant="body2">
-                  Already have an account?{' '}
-                  <Link onClick={() => navigate('/')} sx={{ cursor: 'pointer', color: 'primary.main' }}>
+                  Already have an account?{" "}
+                  <Link
+                    onClick={() => navigate("/")}
+                    sx={{ cursor: "pointer", color: "primary.main" }}
+                  >
                     Login
                   </Link>
                 </Typography>
@@ -490,11 +702,11 @@ export default function ProviderRegistration() {
           </CardContent>
         </Card>
       </Box>
-      <Box sx={{ textAlign: 'center', color: 'text.secondary', pb: 2 }}>
+      <Box sx={{ textAlign: "center", color: "text.secondary", pb: 2 }}>
         <Typography variant="caption">
           Need help? <Link href="#">Contact Support</Link>
         </Typography>
       </Box>
     </Box>
   );
-} 
+}

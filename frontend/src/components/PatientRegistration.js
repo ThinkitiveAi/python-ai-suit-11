@@ -1,19 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Box, Card, CardContent, Typography, TextField, Button, Checkbox, FormControlLabel,
-  InputAdornment, IconButton, MenuItem, Avatar, CircularProgress, Alert, Grid, Link, Divider
-} from '@mui/material';
-import { Lock, Person, Email, Phone, Favorite, Home, Wc, CalendarToday, PhotoCamera, ContactPhone } from '@mui/icons-material';
-import { API_ENDPOINTS, makeApiRequest } from '../config/api';
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  IconButton,
+  MenuItem,
+  Avatar,
+  CircularProgress,
+  Alert,
+  Grid,
+  Link,
+  Divider,
+} from "@mui/material";
+import {
+  Lock,
+  Person,
+  Email,
+  Phone,
+  Favorite,
+  Home,
+  Wc,
+  CalendarToday,
+  PhotoCamera,
+  ContactPhone,
+} from "@mui/icons-material";
+import { API_ENDPOINTS, makeApiRequest } from "../config/api";
 
-const GENDERS = [
-  'Male', 'Female', 'Other', 'Prefer not to say'
-];
-const RELATIONSHIPS = [
-  'Spouse', 'Parent', 'Sibling', 'Friend', 'Other'
-];
+const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
+const RELATIONSHIPS = ["Spouse", "Parent", "Sibling", "Friend", "Other"];
 const COUNTRIES = [
-  'United States', 'Canada', 'United Kingdom', 'India', 'Other'
+  "United States",
+  "Canada",
+  "United Kingdom",
+  "India",
+  "Other",
 ];
 
 function validateEmail(email) {
@@ -33,72 +59,99 @@ function calculateAge(dob) {
 
 export default function PatientRegistration() {
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '', dob: '', gender: '', photo: null,
-    street: '', city: '', state: '', zip: '', country: '',
-    emergencyName: '', emergencyRelationship: '', emergencyPhone: '',
-    password: '', confirmPassword: '', terms: false
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    dob: "",
+    gender: "",
+    photo: null,
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    emergencyName: "",
+    emergencyRelationship: "",
+    emergencyPhone: "",
+    password: "",
+    confirmPassword: "",
+    terms: false,
   });
   const [photoPreview, setPhotoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Validation
   const validate = () => {
     const newErrors = {};
-    if (!form.firstName) newErrors.firstName = 'First name required';
-    if (!form.lastName) newErrors.lastName = 'Last name required';
-    if (!form.email || !validateEmail(form.email)) newErrors.email = 'Valid email required';
-    if (!form.phone || !validatePhone(form.phone)) newErrors.phone = 'Valid phone required';
-    if (!form.dob) newErrors.dob = 'Date of birth required';
-    if (form.dob && calculateAge(form.dob) < 13) newErrors.dob = 'You must be at least 13 years old';
-    if (!form.gender) newErrors.gender = 'Gender required';
-    if (!form.street) newErrors.street = 'Street address required';
-    if (!form.city) newErrors.city = 'City required';
-    if (!form.state) newErrors.state = 'State/Province required';
-    if (!form.zip) newErrors.zip = 'ZIP/Postal code required';
-    if (!form.country) newErrors.country = 'Country required';
-    if (!form.emergencyName) newErrors.emergencyName = 'Emergency contact name required';
-    if (!form.emergencyRelationship) newErrors.emergencyRelationship = 'Relationship required';
-    if (!form.emergencyPhone || !validatePhone(form.emergencyPhone)) newErrors.emergencyPhone = 'Valid emergency phone required';
-    if ((form.emergencyPhone === form.phone) || (form.emergencyName === `${form.firstName} ${form.lastName}`)) newErrors.emergencyPhone = 'Emergency contact must be different from patient';
-    if (!form.password || !validatePassword(form.password)) newErrors.password = 'Min 8 chars, 1 number, 1 special char';
-    if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords must match';
-    if (!form.terms) newErrors.terms = 'You must accept the terms';
+    if (!form.firstName) newErrors.firstName = "First name required";
+    if (!form.lastName) newErrors.lastName = "Last name required";
+    if (!form.email || !validateEmail(form.email))
+      newErrors.email = "Valid email required";
+    if (!form.phone || !validatePhone(form.phone))
+      newErrors.phone = "Valid phone required";
+    if (!form.dob) newErrors.dob = "Date of birth required";
+    if (form.dob && calculateAge(form.dob) < 13)
+      newErrors.dob = "You must be at least 13 years old";
+    if (!form.gender) newErrors.gender = "Gender required";
+    if (!form.street) newErrors.street = "Street address required";
+    if (!form.city) newErrors.city = "City required";
+    if (!form.state) newErrors.state = "State/Province required";
+    if (!form.zip) newErrors.zip = "ZIP/Postal code required";
+    if (!form.country) newErrors.country = "Country required";
+    if (!form.emergencyName)
+      newErrors.emergencyName = "Emergency contact name required";
+    if (!form.emergencyRelationship)
+      newErrors.emergencyRelationship = "Relationship required";
+    if (!form.emergencyPhone || !validatePhone(form.emergencyPhone))
+      newErrors.emergencyPhone = "Valid emergency phone required";
+    if (
+      form.emergencyPhone === form.phone ||
+      form.emergencyName === `${form.firstName} ${form.lastName}`
+    )
+      newErrors.emergencyPhone =
+        "Emergency contact must be different from patient";
+    if (!form.password || !validatePassword(form.password))
+      newErrors.password = "Min 8 chars, 1 number, 1 special char";
+    if (form.password !== form.confirmPassword)
+      newErrors.confirmPassword = "Passwords must match";
+    if (!form.terms) newErrors.terms = "You must accept the terms";
     return newErrors;
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'checkbox') {
-      setForm(f => ({ ...f, [name]: checked }));
-    } else if (type === 'file') {
+    if (type === "checkbox") {
+      setForm((f) => ({ ...f, [name]: checked }));
+    } else if (type === "file") {
       const file = files[0];
-      setForm(f => ({ ...f, photo: file }));
+      setForm((f) => ({ ...f, photo: file }));
       if (file) {
         const reader = new FileReader();
-        reader.onload = e => setPhotoPreview(e.target.result);
+        reader.onload = (e) => setPhotoPreview(e.target.result);
         reader.readAsDataURL(file);
       } else {
         setPhotoPreview(null);
       }
     } else {
-      setForm(f => ({ ...f, [name]: value }));
+      setForm((f) => ({ ...f, [name]: value }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
     const newErrors = validate();
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
-    
+
     setLoading(true);
-    
+
     try {
       const registrationData = {
         first_name: form.firstName,
@@ -112,43 +165,78 @@ export default function PatientRegistration() {
           city: form.city,
           state: form.state,
           zip_code: form.zip,
-          country: form.country
+          country: form.country,
         },
         emergency_contact: {
           name: form.emergencyName,
           relationship: form.emergencyRelationship,
-          phone_number: form.emergencyPhone
+          phone_number: form.emergencyPhone,
         },
         password: form.password,
-        confirm_password: form.confirmPassword
+        confirm_password: form.confirmPassword,
       };
 
-      const result = await makeApiRequest(API_ENDPOINTS.PATIENT_REGISTER, registrationData, 'POST');
+      const result = await makeApiRequest(
+        API_ENDPOINTS.PATIENT_REGISTER,
+        registrationData,
+        "POST"
+      );
 
       setLoading(false);
-      
+
       if (result.success) {
         setSuccess(true);
       } else {
-        setFormError(result.error || 'Registration failed. Please try again.');
+        setFormError(result.error || "Registration failed. Please try again.");
       }
     } catch (err) {
       setLoading(false);
-      setFormError('Network error. Please try again.');
+      setFormError("Network error. Please try again.");
     }
   };
 
   if (success) {
     return (
-      <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Card sx={{ p: 4, minWidth: 340, maxWidth: 420, boxShadow: 3, borderRadius: 3 }}>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Card
+          sx={{
+            p: 4,
+            minWidth: 340,
+            maxWidth: 420,
+            boxShadow: 3,
+            borderRadius: 3,
+          }}
+        >
           <CardContent>
-            <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
+            <Typography
+              variant="h5"
+              color="primary"
+              fontWeight="bold"
+              align="center"
+              gutterBottom
+            >
               Registration Successful!
             </Typography>
             <Typography align="center" sx={{ mb: 2 }}>
-              Please check your email for verification and next steps.<br />
-              You may now <Link href="/patient-login" sx={{ cursor: 'pointer', color: 'primary.main' }}>login</Link> or go to your dashboard.
+              Please check your email for verification and next steps.
+              <br />
+              You may now{" "}
+              <Link
+                href="/patient-login"
+                sx={{ cursor: "pointer", color: "primary.main" }}
+              >
+                login
+              </Link>{" "}
+              or go to your dashboard.
             </Typography>
           </CardContent>
         </Card>
@@ -157,10 +245,22 @@ export default function PatientRegistration() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%)' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 4 }}>
-        <Avatar sx={{ bgcolor: '#10b981', width: 56, height: 56, mb: 1 }}>
-          <Favorite sx={{ color: '#fff', fontSize: 32 }} />
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%)",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          pt: 4,
+        }}
+      >
+        <Avatar sx={{ bgcolor: "#10b981", width: 56, height: 56, mb: 1 }}>
+          <Favorite sx={{ color: "#fff", fontSize: 32 }} />
         </Avatar>
         <Typography variant="h4" fontWeight="bold" color="#3b82f6" gutterBottom>
           Welcome to Healthcare Platform
@@ -169,8 +269,16 @@ export default function PatientRegistration() {
           Create your account to access healthcare services
         </Typography>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
-        <Card sx={{ minWidth: 340, maxWidth: 600, width: '100%', boxShadow: 3, borderRadius: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 4 }}>
+        <Card
+          sx={{
+            minWidth: 340,
+            maxWidth: 600,
+            width: "100%",
+            boxShadow: 3,
+            borderRadius: 3,
+          }}
+        >
           <CardContent>
             <form onSubmit={handleSubmit} autoComplete="on">
               {/* Personal Info */}
@@ -188,7 +296,13 @@ export default function PatientRegistration() {
                     helperText={errors.firstName}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Person /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -201,7 +315,13 @@ export default function PatientRegistration() {
                     helperText={errors.lastName}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Person /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -214,7 +334,13 @@ export default function PatientRegistration() {
                     helperText={errors.email}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Email /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Email />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -227,7 +353,13 @@ export default function PatientRegistration() {
                     helperText={errors.phone}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Phone /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Phone />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -242,7 +374,13 @@ export default function PatientRegistration() {
                     fullWidth
                     required
                     InputLabelProps={{ shrink: true }}
-                    InputProps={{ startAdornment: <InputAdornment position="start"><CalendarToday /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarToday />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -256,21 +394,32 @@ export default function PatientRegistration() {
                     helperText={errors.gender}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Wc /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Wc />
+                        </InputAdornment>
+                      ),
+                    }}
                   >
-                    {GENDERS.map(opt => (
-                      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                    {GENDERS.map((opt) => (
+                      <MenuItem key={opt} value={opt}>
+                        {opt}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Grid>
                 <Grid item span={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar src={photoPreview} sx={{ width: 48, height: 48, bgcolor: 'secondary.main' }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Avatar
+                      src={photoPreview}
+                      sx={{ width: 48, height: 48, bgcolor: "secondary.main" }}
+                    />
                     <Button
                       variant="outlined"
                       component="label"
                       startIcon={<PhotoCamera />}
-                      sx={{ textTransform: 'none' }}
+                      sx={{ textTransform: "none" }}
                     >
                       Upload Photo
                       <input
@@ -301,7 +450,13 @@ export default function PatientRegistration() {
                     helperText={errors.street}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Home /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Home />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -352,8 +507,10 @@ export default function PatientRegistration() {
                     fullWidth
                     required
                   >
-                    {COUNTRIES.map(opt => (
-                      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                    {COUNTRIES.map((opt) => (
+                      <MenuItem key={opt} value={opt}>
+                        {opt}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -374,7 +531,13 @@ export default function PatientRegistration() {
                     helperText={errors.emergencyName}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><ContactPhone /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <ContactPhone />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item span={6}>
@@ -389,8 +552,10 @@ export default function PatientRegistration() {
                     fullWidth
                     required
                   >
-                    {RELATIONSHIPS.map(opt => (
-                      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                    {RELATIONSHIPS.map((opt) => (
+                      <MenuItem key={opt} value={opt}>
+                        {opt}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -404,7 +569,13 @@ export default function PatientRegistration() {
                     helperText={errors.emergencyPhone}
                     fullWidth
                     required
-                    InputProps={{ startAdornment: <InputAdornment position="start"><Phone /></InputAdornment> }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Phone />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -418,20 +589,28 @@ export default function PatientRegistration() {
                   <TextField
                     label="Password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
                     error={!!errors.password}
-                    helperText={errors.password || 'Min 8 chars, 1 number, 1 special char'}
+                    helperText={
+                      errors.password || "Min 8 chars, 1 number, 1 special char"
+                    }
                     fullWidth
                     required
                     InputProps={{
-                      startAdornment: <InputAdornment position="start"><Lock /></InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Lock />
+                        </InputAdornment>
+                      ),
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
-                            onClick={() => setShowPassword(s => !s)}
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowPassword((s) => !s)}
                             edge="end"
                             tabIndex={-1}
                           >
@@ -446,7 +625,7 @@ export default function PatientRegistration() {
                   <TextField
                     label="Confirm Password"
                     name="confirmPassword"
-                    type={showConfirm ? 'text' : 'password'}
+                    type={showConfirm ? "text" : "password"}
                     value={form.confirmPassword}
                     onChange={handleChange}
                     error={!!errors.confirmPassword}
@@ -454,12 +633,18 @@ export default function PatientRegistration() {
                     fullWidth
                     required
                     InputProps={{
-                      startAdornment: <InputAdornment position="start"><Lock /></InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Lock />
+                        </InputAdornment>
+                      ),
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                            onClick={() => setShowConfirm(s => !s)}
+                            aria-label={
+                              showConfirm ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowConfirm((s) => !s)}
                             edge="end"
                             tabIndex={-1}
                           >
@@ -472,8 +657,16 @@ export default function PatientRegistration() {
                 </Grid>
               </Grid>
               <Box sx={{ mt: 1, mb: 2 }}>
-                <Typography variant="caption" color={validatePassword(form.password) ? 'success.main' : 'error.main'}>
-                  Password strength: {validatePassword(form.password) ? 'Strong' : 'Weak'}
+                <Typography
+                  variant="caption"
+                  color={
+                    validatePassword(form.password)
+                      ? "success.main"
+                      : "error.main"
+                  }
+                >
+                  Password strength:{" "}
+                  {validatePassword(form.password) ? "Strong" : "Weak"}
                 </Typography>
               </Box>
               <FormControlLabel
@@ -483,12 +676,27 @@ export default function PatientRegistration() {
                     onChange={handleChange}
                     name="terms"
                     color="primary"
-                    inputProps={{ 'aria-label': 'Accept Terms and Conditions' }}
+                    inputProps={{ "aria-label": "Accept Terms and Conditions" }}
                   />
                 }
-                label={<span>I accept the <Link href="#" underline="hover">Terms & Conditions</Link> and <Link href="#" underline="hover">Privacy Policy</Link></span>}
+                label={
+                  <span>
+                    I accept the{" "}
+                    <Link href="#" underline="hover">
+                      Terms & Conditions
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="#" underline="hover">
+                      Privacy Policy
+                    </Link>
+                  </span>
+                }
               />
-              {formError && <Alert severity="error" sx={{ my: 2 }}>{formError}</Alert>}
+              {formError && (
+                <Alert severity="error" sx={{ my: 2 }}>
+                  {formError}
+                </Alert>
+              )}
               <Button
                 type="submit"
                 fullWidth
@@ -496,15 +704,28 @@ export default function PatientRegistration() {
                 color="primary"
                 size="large"
                 disabled={loading}
-                sx={{ mt: 2, mb: 1, height: 48, fontWeight: 'bold', fontSize: 16 }}
+                sx={{
+                  mt: 2,
+                  mb: 1,
+                  height: 48,
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
                 aria-label="Register"
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Register"
+                )}
               </Button>
-              <Box sx={{ textAlign: 'center', mt: 1 }}>
+              <Box sx={{ textAlign: "center", mt: 1 }}>
                 <Typography variant="body2">
-                  Already have an account?{' '}
-                  <Link href="/patient-login" sx={{ cursor: 'pointer', color: 'primary.main' }}>
+                  Already have an account?{" "}
+                  <Link
+                    href="/patient-login"
+                    sx={{ cursor: "pointer", color: "primary.main" }}
+                  >
                     Login
                   </Link>
                 </Typography>
@@ -513,12 +734,13 @@ export default function PatientRegistration() {
           </CardContent>
         </Card>
       </Box>
-      <Box sx={{ textAlign: 'center', color: 'text.secondary', pb: 2 }}>
+      <Box sx={{ textAlign: "center", color: "text.secondary", pb: 2 }}>
         <Typography variant="caption">
-          Your privacy and security are our top priority.<br />
+          Your privacy and security are our top priority.
+          <br />
           &copy; {new Date().getFullYear()} Healthcare Platform
         </Typography>
       </Box>
     </Box>
   );
-} 
+}
